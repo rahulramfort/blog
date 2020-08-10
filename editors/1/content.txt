@@ -1,0 +1,35 @@
+The Love for Sublime Text!
+
+
+I have been an ardent fan of sublime text for the last 4 years. I have never considered any other IDE for ruby. Here’s how I am able to work effectively using sublime text and why is it hard for someone like me to switch to any other IDEs.
+Quick Pros:
+* Easy to set up
+* No learning curve
+* Simple. Fast. (much like the success of WhatsApp)
+* Hassle-free for beginners (just focus on one thing — code)
+Tools/Plugins that I use in Sublime:
+1. Rubocop
+2. Git Blame/Annotate
+3. Bracket Highlighter
+4. Snippets (in-built)
+What I use 99% of the time:
+1. `Cmd + P` — switching between files
+2. `Cmd + R` — searching for a method in a file
+3. `Cmd + Shift + F` — global search
+I am happy to delegate other activities to the terminal.
+* Version Control — Terminal/ SourceTree
+* Debugging/ REPL/ Server — Terminal
+After spending quite some time with Sublime Text, I started looking for some IDEs. These two caught my eye.
+* VS Code
+* RubyMine
+Both of these provides a complete package for development — code, commit, REPL, debug/server.
+They have added support for docker, reviewing PRs, configuring multiple build tasks. You never have to go out of it to do something.
+Somehow I felt these overwhelming and never once I considered switching to any of these in the past 4 years.
+Reasons for hanging on to Sublime Text:
+1. Most of the time, at least 5 projects would be open in different windows, yet Chrome would be laughing at the RAM consumption of Sublime Text.
+To say, lightweight will be an understatement
+2. No boot-time whatsoever. Opens in a flash
+3. Strong muscle memory of key bindings (working with multiple cursors, swapping lines, find previous/next occurrence of a word)
+3. The most important part — feel and comforts of using it
+Now that I am considering it’s time that I give a shot to either of VS Code or RubyMine. I will follow this up with whys and hows of migrating from Sublime Text.
+PS: Sublime Text, you have been a great friend!

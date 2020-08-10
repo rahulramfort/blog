@@ -1,0 +1,28 @@
+Sublime Text is an editor, not an IDE!
+
+Having written here on why I love sublime text and how it has made my dev life smooth, here are my top 5 reasons which made me look for some IDEs.
+1. Refactoring code is a headache!
+Often you end up refactoring a long function into multiple functions and you have to manually move the functions around, pass arguments to the newly created functions and make sure there is no error while doing all these.
+2. Finding the implementation of a method is just not possible :(
+Using its limited power, Sublime Text shows all the possible implementations of a method when you hover over a function. This works decently for uncommon methods. But when you try to look up for common methods that every class/service might have, it is similar to looking for a needle in a haystack.
+Image for post
+(showing possible implementations of the method perform)
+3. Finding the usage of a method is 404!
+Let’s say before changing a method name, you want to find all the places where it is being used and how critical it is. The only way you can do it is through
+Cmd + Shift + F
+Yeah, you got it right. Using the global search. Good luck with that!
+4. Rubocop and Sublime Text doesn’t go hand in hand
+I am a huge Rubocop fan and I love almost all of its code suggestions. But the problem lies in doing those changes. Sublime Text has the rubocop plugin.
+Image for post
+But no, it isn’t what you want. You don’t even have the option to choose only the issues that you want to fix.
+5. Again, Refactoring code — Part 2
+When you feel certain methods doesn’t align with a class/module’s SRP, you being a nice guy, decide to move it out to a new file.
+Now, you have to manually move the function, give it a file name, enclose it with corresponding modules. There’s a lot of copy-paste involved here. Don’t forget, you have to include/extend the new component in the old component as well.
+Image for post
+(showing how nested modules can be)
+This is the reason why sometimes my classes break SRP :(
+In an ideal world, you should be able to select the functions, give the new file a name, choose if the current file should extend/include the new one. That’s it.
+Tada!
+But let’s not blame Sublime Text!
+Instead of asking Sublime Text these sophisticated features, let’s for a moment acknowledge the fact that Sublime Text is not an IDE, it is an editor! And, it does a wonderful job of being an amazing editor.
+To sum this up, it’s better that we look for IDEs that are specifically designed for the very purpose and let *sublime text remain insanely simple!*
