@@ -1,0 +1,75 @@
+MySQL Index - All Questions Answered!
+If you have worked with databases, the term index is pretty common. Be it a relational database or a NoSql database. Whenever a query takes more time, the first question we hear is, is the column used in where condition been indexed?
+Here are some FAQs that help us understand how MySQL works?
+How is my data stored in MySQL?
+MySQL stores each table like a hash (consider, for now, will save this for another post) where you have an index key and the values of the row stored against it. This index key is called a clustering index key.
+What is a clustering index?
+It is a special index used by MySQL to store the actual data. When you specify a primary key, that column will be used as the clustering index key.
+Consider this hash represents a table posts and key is the value of the primary key column, value is the actual data of the row.
+{
+"1" => {id: 1, title: "Mysql Indexing", status: "published"},
+"2" => {id: 2, title: "Improving Query Performance", status: "draft"},
+}
+when you do, select * from posts where id=2
+internally it does posts["2"], which returns the values in O(1) time.
+What happens if I don't specify a primary key?
+MySQL tries to find a column which is non-null and has a unique index on it. In case there is none, it automatically creates a hidden clustered index using the row IDs.
+posts = {
+"rowid1" => {id: 1, title: "Mysql Indexing", status: "published"},
+"rowid2" => {id: 2, title: "Improving Query Performance", status: "draft"},
+}
+Assume now id becomes a normal column without unique/primary index
+Now MySQL has to go through all the values to find the value where id=2. There will be no field that can be queried in O(1) time. This is why it is always advisable to define a primary key.
+How is the search with primary_key fast irrespective of the table size?
+As you know now, the primary key is used as the clustering index key, hence the high performance.
+What happens when I want to index another column?
+More often you would want to query with some specific fields and these indexes that you create on those fields are called non-clustering index or secondary index.
+How is it different from a clustering index?
+A clustering index has the actual data stored in it whereas, in a non-clustering index, only the reference to the actual data is stored.
+For example, a non-clustering index on status would look like
+(again, not getting into details here)
+index_on_status = {
+"published" => [&ref1, &ref3, &ref4],
+"draft" => [&ref2, &eref5]
+}
+select * from posts where status = 'published'
+This query will use index_on_status index over the primary key index as there are just 3 rows to search using this index whereas it has to search in all 5 rows using the primary key index.
+How does MySQL choose which index to use?
+When a query is fired, MySQL analyses all the possible indexes that are available and identifies an index which when used will have the least number of rows to search for the condition specified.
+Which parameter influences the decision here?
+Cardinality is the key to pick an index.
+In simple terms, cardinality = uniqueness of the column
+Higher the cardinality better the grouping of records and therefore better search performance.
+This is why a primary key has the best performance possible as the cardinality is maximum. Each key will have exactly only one record to look for.
+What if the cardinality of the indexed column is low?
+This is the most common mistake that devs do. Consider the column status which can have only 2 values ['published', 'draft']
+As the scale increases, all the records will be bucketed only within one of these two keys and even after using this index, the number of records in which MySQL has to iteratively search is high.
+Which column should be indexed?
+Again it depends on the application use-case, still before indexing a column, it is the duty of the dev to analyse how the index is going to help the query. How many folds are we reducing the number of searches? Will the index perform at scale? Will each bucket be evenly distributed over time?
+Since an index improves performance, why don't we index all the columns by default?
+Indexing improves the query performance but it costs extra storage and every time, there's an insert/delete/update operation, all the respective indexes have to be updated as well. This is the overhead of using indexes.
+What happens if I have two indexes and I am querying with both the indexed fields? Will both the indexes be used?
+MySQL picks only one index for a search query out of all the possible indexes. This is the common misconception that if we index two fields and use those in the query, the query will be fast. NO! Understand how MySQL searches internally and it will be easy for you to visualise the search.
+What if I want to search using two fields and still get a better performance?
+Composite index to the rescue.
+What is a composite index?
+These are indexes on multiple columns.
+MySQL supports up to 16 columns for a composite index.
+When should I use a composite index?
+When you want to search using multiple fields and indexing a single field still results in a large number of rows, then you might consider creating a composite index with the columns of your need.
+Can I query with all combinations of a composite index?
+No.
+Assume a composite index on columns (created_at, status, likes)
+Consider this as a nested hash from left to right. This index can be used when queried with
+a. created_at, status, likes
+b. created_at, status
+c. created_at
+Not when using any other combinations.
+How can I see which indexed is being used for a query?
+Use Explain. Explain is our debugger in MySQL that helps us look at
+What are the possible keys available for that query?
+Which is the index MySQL has picked?
+How many rows are gonna be searched for this query using the picked index?
+
+That's all of the FAQs I had in mind.
+Do think of this article as a head start that you need for diving deeper into the specifics.

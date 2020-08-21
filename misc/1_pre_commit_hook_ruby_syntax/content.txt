@@ -1,0 +1,49 @@
+A simple pre-commit hook that saves you big time!
+
+Irrespective of how thoroughly the code is tested, working in an agile startup demands you to do some last-minute changes many a time.
+
+Most of the times, everything goes well.
+
+Sometimes, unfortunately, you get an error after the staging/testing deployment and the server wouldn't start. It could be as simple as missing an end. Yes, syntax error is what we are talking about.
+
+This is an embarrassment particularly when a lot of resources are working on a single branch and you get a slack alert from people saying, Your code has a syntax error, please fix!
+
+To save me from these, as a practice before committing I always run a simple
+
+ruby -c 'file_path'
+
+that displays all the syntax errors in the file. This saves me from the embarrassment. But it is a gruelling activity especially when there are a lot of files to commit.
+
+This should be automated, right?
+
+Yes! Git Hooks
+If you find the terminology new, read about it here
+
+Let's talk about the pre-commit hook!
+
+What's a pre-commit hook?
+
+The pre-commit hook is run first before you even type in a commit message. It’s used to inspect the snapshot that’s about to be committed, to see if you’ve forgotten something, to make sure tests run, or to examine whatever you need to inspect in the code. Exiting non-zero from this hook aborts the commit
+
+Yes, this is tailor-made for our use-case.
+
+I wanted to create a pre-commit hook which would pick all the staged files and run the syntax check and halt the commit if there are errors.
+
+It is so simple that I managed to create it in less than an hour. Never should I worry about my syntax errors anymore forever. You can see it in action here. 😎
+
+Pre-commit halting the commit
+
+Ah, embarrassment prevented! Here the pre-commit halts the commit because it found syntax issues in the staged files.
+
+When all the files are good to go syntactically, you wouldn't even notice the hook.
+Pre-commit success
+(Using terminal to show the success case, as Sourcetree closes the popup quickly)
+
+That's all I needed and I wonder why didn't I do it before.
+
+If you are in love with the hook already, start writing one straight away. If you need any inspiration to write one, have a look at my hook here. You can customise the hook however you want.
+
+Further, I am planning to do more with this pre-commit hook
+
+Implement the same for go, YAML files
+Run rubocop/lint tools to check for specific offences
