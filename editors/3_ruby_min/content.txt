@@ -1,0 +1,72 @@
+RubyMine deserves a 👏 for productivity
+
+
+After doing years of ruby development in Sublime Text, I decided to move away. Here are the reasons. I chose RubyMine as quite a few peers of mine recommended it and boasted how they could never imagine coming out of RubyMine now.
+
+I decided to give it a shot. To be honest, I felt congested working in RubyMine and I would often switch to Sublime to debug something or to look up something quickly. It took a week to settle down and thereafter, I refrained myself from switching to sublime text.
+
+It's been three weeks with RubyMine now and here are the productive features that have made me happy during this short period.
+
+Refactoring code is easy peasy
+If you're one of those, who often refactor code, you will love how easy it is done in RubyMine.
+
+To extract a method, select the lines of code to move, give it a name and select if it has to a public/private method.
+
+It's interesting to note that, if you're refactoring a class method, the new methods will also be a class method, which you might miss if you do it yourself every time. 😉
+
+Extract Method
+
+Similarly, moving methods to a new module/class is also neat.
+RubyMine extends/includes the new module in the current file automatically as well.
+
+Extract Module
+
+Renaming a method/variable/class name
+When you want to rename an identifier, RubyMine intelligently finds all the usages of the identifier and changes it.
+
+Renaming class name will change the file name accordingly as well.😎
+
+Extract Rename Dialog
+
+It quickly shows all the usages for you verify.
+
+Extract Rename
+
+Documentation for methods/classes
+I often end up googling methods/classes that are defined in ruby/rails so as to understand it better. Not anymore.
+
+RubyMine displays the documentation in a popup for methods, classes when you hover over it.
+
+Documentation
+
+Find all usages of a method
+This is my favourite feature. CMD + Click shows all the usages of an identifier and helps you in quickly jumping to and fro.
+
+All usages
+
+Compare with the repository version
+To check the changes that I have made to a file while working, I used to switch to SourceTree. RubyMine has a similar way of showing the diff of the working copy against the repository version using any shortcut of your choice.
+
+Compare working copy
+
+Go to Implementation of a method
+This is a must-have feature in an IDE.
+
+What I really like here is how RubyMine lets us see a method of any gem.
+
+All usages
+
+Possible syntax errors
+Apart from checking the syntax of a line as you type it, it also intelligently show the syntax errors for method calls.
+
+All usages
+
+Begin ... End Block
+This is a simple yet elegant feature that shows which block does the current end close. This is particularly useful when the number of lines in the file is too many and you have to scroll up to see which block the end closes.
+As soon as the cursor is on any end, RubyMine shows the corresponding block at the top.
+
+All usages
+
+These are a few highlights that I have liked in these three weeks of using RubyMine. These are definitely going to boost your productivity and if you're still on Sublime Text, you must give RubyMine a try.
+
+Please drop a comment if there are any other cool features that I must know

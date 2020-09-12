@@ -1,0 +1,94 @@
+What is a DDoS attack anyway?
+
+
+Recently in my organization, we decided to have an API gateway and we were wondering if we could also remove Cloudflare WAF layer which had very recently averted a few DDoS attacks on our website.
+
+I previously had read a nginx article and I was of the thought that DDoS attack was all about the application layer attacks and adding a rate-limiting at the Nginx layer could prevent the DDoS attacks.
+
+I was totally wrong!
+
+Here's a brief of types and a variety of DDoS attacks.
+
+Before jumping in, DoS stands for Denial of Service attack that aims at crashing the target server or disrupting its normal functioning by creating congestion on its network.
+DDoS is a distributed DoS attack where multiple systems attack the target server.
+
+There are three categories of DDoS attacks:
+
+Protocol Attacks
+Application Layer Attacks
+Volumetric Attacks
+Protocol Attacks:
+Protocol attacks happen in layer 3 (Network Layer) or layer 4 (Transport Layer) of the OSI Model. These attacks aim at creating congestion or exhaust the server resources by attacking the intermediaries between the server and the website like firewall and load balancers.
+
+Before going into individual attacks, let's revisit how the TCP handshake works.
+
+SYN - the client requests for a new connection by sending a SYN with its random value - RANDOM_A
+SYN-ACK - the server keeps a port ready and replies with a SYN-ACK, acknowledging the client's SYN and sending back its random value RANDOM_B
+ACK - the client acknowledges the server's SYN and sends back an ACK and the connection is successfully made.
+Technically, an ACK/SYN packet is a TCP packet with the "ACK" or "SYN" flag set in the header.
+
+SYN Flood
+This attack uses the vulnerability of TCP handshake by sending
+the server a large number of SYN packet. These SYN packets are normally sent using spoofed IP addresses. This results in the server sending a SYN-ACK to the spoofed IP address and waiting for the final ACK forever. The purpose of the attack is to exhaust the server resources by opening a useless connection every time and prevent it from creating new requests for the actual users.
+
+ACK Flood
+This attack sends an enormous number of ACK packet to the server. The server has to process each packet to find if the packet is a legitimate one or not. The idea is to use up the resources of the server by sending junk ACK packets that are of no use to the server.
+
+SYN ACK Flood
+This attack is slightly different as the clients never send SYN-ACK to the server during the three-way handshake. The objective remains the same, it is to waste resources of the server.
+
+QUIC Flood
+Quic is a new transport protocol and it's a faster and secure way to send data. It does not use TCP, hence there's no three-way handshake here. It instead uses UDP. Since UDP is less reliable it sends multiple streams of data to make up for any loss of packets. Using TCP, the data has to be sent over HTTPS to be encrypted, whereas, in QUIC, the data is encrypted by default using TLS encryption.
+
+This is briefly how the QUIC protocol works. QUIC flood aims at sending overwhelming data over QUIC. Since all the QUIC data is encrypted, the server has to spend even more resource to actually authenticate the legitimacy of the request.
+
+Unlike other floods where the server sends comparatively less data(ACK or SYN), here the server has to send back its TLS certificate in the first request itself. Spoofing the IPs and flooding with QUIC, results in the server sending a larger unwanted data to the spoofed IPs.
+
+UDP Flood
+When a server receives a UDP packet, it has to check if there are any processes listening at the specified port and if it doesn't find one, the server pings the client that the destination was unreachable.
+As this process has to be followed for each packet, UDP flood is effective in depleting the server resources.
+
+DNS Flood
+The functionality of the Domain name system is to translate the website names to its IP addresses. This attack uses devices that have high bandwidth connections and hits a huge number of requests so as to prevents legitimate users from accessing it.
+
+Ping Flood
+Normally PING(ICMP) is used to test the health status and connectivity of the server. This attack sends out overwhelming ping requests to use the server resources. This is the least effective mode of attack as the attacker has to send the maximum number of requests to bring the server down. This is because the cost of sending the ping reply is pretty low.
+
+Volumetric Attacks:
+These are the most common types of DDoS attacks. These attacks are reflection-based in nature where the attacker spoofs the IP and makes the server respond to the spoofed IP.
+
+Amplification Technique:
+Volumetric attacks use amplification technique where the attacker requires less cost to make the target server send large amounts of data. As it amplifies the effect on the server by using fewer resources, it is called Amplification attack.
+
+As Cloudflare neatly puts it,
+
+Amplification can be thought of in the context of a malicious teenager calling a restaurant and saying “I’ll have one of everything, please call me back and tell me my whole order.” When the restaurant asks for a callback number, the number given is the targeted victim’s phone number. The target then receives a call from the restaurant with a lot of information that they didn’t request.
+
+To create a large amount of traffic, the attacker structures the request in a way that generates a large response from the server as possible.
+
+DNS Amplification
+This attack differs from DNS flood as it primarily uses amplification to make many small requests for very large DNS records data. As it's reflective in nature, the server sends the response to the spoofed IPs.
+
+NTP Amplification
+Network Time Protocol servers have a functionality Get Monlist that sends out the history of last 600 IP addresses that hit the NTP server.
+
+This is a massive increase in the request-to-response size ratio. The server will be sending 200 times larger data than the request size. This effectively means with just 1 GB of bandwidth, the attacker can create 200 GB attack on the server.
+
+Application layer Attacks:
+These are the attacks that happen at layer 7 (Application Layer) which involves sending the HTTP requests (GET, POST) and receiving the data.
+
+The idea is the same here, by consuming the server CPU resources, the server will not be able to process the genuine requests.
+
+Two frequently used techniques here are
+
+Bombarding the server with a very huge number of request that the server will not be able to handle and goes down in the process. Considering the computing power of any normal application, it will be too difficult for it to handle these attacks.
+
+Slow attacks - that keeps the connection open by sending partial headers to the server or delaying the data to be sent for a post request and making the server wait for longer periods. These kinds of attacks are generally difficult to identify and the server might drop genuine slow requests as well if it restricts slow requests altogether.
+
+These are some of the common DDoS attacks and the server should be equipped to protect itself from any of these attacks.
+
+For instance,
+
+Layer 7 attacks can be protected by adding a rate-limiting that prevents IPs from hitting more than the specified number of requests.
+NTP Amplification on Get Monlist can be averted by disabling the functionality itself.
+Having a Web Application Firewall(WAF) like CloudFare WAF, AWS Shield protects us from a variety of these attacks.
