@@ -1,0 +1,73 @@
+###What is CORS?
+CORS - Cross-Origin Resource Sharing 
+In simple terms, when you want to allow a different domain (read origin) to access your server, CORS comes into the picture. 
+
+###What is Cross-Origin?🤔
+Let's say you're reading this post on `Dev.to`. `Dev.to` is the origin here and it's allowed to request for resources (make https calls) that are present in its origin only. If it's making calls to any other origin, even to its sub-domain, will be termed cross-origin.
+
+###What is the use case?
+In the world of microservices, even within your architecture, you might have different services talking to multiple servers. This is a mechanism to let only the trusted origins make the Cross-Origin HTTP request to your server.
+ 
+Consider this naive example where there's an application running at `rahul.dev.to` and there's a functionality to edit my posts. Once the post is edited, I have to update the post across all my blogging sites - dev.to, medium.com, blogger.com
+
+For this hypothetical case to work, I would need to hit this patch API on `dev.to`.
+```
+PATCH https://dev.to/rahul_ramfort/post/20
+Request-Headers: User-Agent, api_key
+```
+(for brevity, ignoring medium and blogger API calls)
+
+I am trying to post the data from my server (rahul.dev.to) to another server (dev.to) and I might or might not be allowed to actually modify the data on `dev.to`. 
+
+This is the problem at hand.
+
+###Preflight Requests!
+
+ To solve this, Browsers for security reasons, do not directly allow this cross-origin requests to go through. Before firing the actual `patch` request, it instead fires an OPTIONS request to the cross-origin (dev.to) with all the details of the CORS request.
+
+The details include:
+```
+Origin of the requested server - rahul.dev.to
+Method rahul.dev.to is trying to hit - PATCH
+Headers rahul.dev.to is trying to send - User-Agent, api_key
+```
+Dev.to, the cross-origin receives the OPTIONS request and can deny or allow the origin (rahul.dev.to) to make requests.
+
+In this case, `dev.to` would have configured a list of *trusted* origins that can make the CORS requests at its application layer. 
+
+```
+#sample configuration at the nginx layer (dev.to)
+'Access-Control-Allow-Origin' "https://api.dev.to"
+'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, DELETE, PUT, PATCH'
+'Access-Control-Allow-Headers' 'User-Agent,Content-Type,access-key,api-key'
+'Access-Control-Max-Age' 86400
+```
+
+If `rahul.dev.to` is listed as one of the trusted origins, the browser receives a successful 204. Now the browser understands that it is safe to allow the CORS request and fires the actual `PATCH` request.
+
+![CORS request](https://github.com/rahulramfort/blog/blob/master/devops/2_cors/cors_request_flow.png?raw=true)
+
+If `rahul.dev.to` is an untrusted origin, the server denies the OPTIONS request.
+
+The browser considering this as a potential threat, will not fire the actual `PATCH` request throwing an error,
+```
+Preflight response is not successful
+```
+
+###Understanding the CORS response headers:
+These are the headers received for the preflight request. 
+
+* Access-Control-Allow-Origin - has the requested origin value if it has access.
+* Access-Control-Allow-Methods - specifies which methods are allowed for CORS.
+* Access-Control-Allow-Headers - specifies which headers are accepted with the actual CORS request (in this case `PATCH`)
+* Access-Control-Max-Age - specifies how much time (in seconds) the response of the preflight request can be cached. The browser will skip further preflight requests and directly hit the actual request during that time period.
+
+
+####Note: 
+```
+Access-Control-Allow-Origin: '*'
+```
+It is pretty common to see people configuring like this as a workaround to allow preflight requests.
+
+What this essentially means is that your server is allowing all the origins to hit CORS requests. Allow only trusted origins here and using `'*'` should totally be avoided. 
+Further, if you want to reduce the frequency of preflight requests for your trusted origins, you can set the `Access-Control-Max-Age` header to a higher value.
