@@ -1,0 +1,47 @@
+API Gateways are becoming increasingly popular with the microservice architecture. Recently, Google announced its own [api-gateway](https://cloud.google.com/api-gateway). The time is ripe to take a look at why microservice architecture needs them and how they currently look without the api gateway in place.
+
+Let's look at a microservice architecture without an api gateway.
+
+![Architecture without api gateway](https://github.com/rahulramfort/blog/blob/master/devops/3_api_gateway/dark_without_gateway.png?raw=true)
+
+
+Each microservice apart from its core functionality, traditionally have been doing these as well,
+* Authentication of requests based on OAuth or JWT token or a simple key-based authentication. (This authentication is to verify if other services or users have access to this service, not the typical user authentication that happens based on the application data.) 
+* Allow [CORS requests](https://dev.to/rahul_ramfort/cors-preflight-request-oii) from other microservices
+* Allow/Deny requests based on their IPS.
+* Rate Limiting - Allow only a certain number of requests. Requests over the specified limit will be responded with a status code 429 (Too many requests). These rules also protect the microservice from [DDOS attack](https://dev.to/rahul_ramfort/what-is-a-ddos-attack-anyway-9kj) that happen at the application layer.
+
+* Monitoring -  Collecting metrics from the requests/response to gain valuable insights. Eg: number of requests per minute, number of requests per API, number of requests a particular user has hit above the rate limit.
+
+* Alerting - This is a subset of monitoring, where alerts are generated for specific events. Eg: Generating an alert when the response time is over 500ms for 1000 requests. Using an observability tool like Prometheus helps in both monitoring and alerting.
+
+* Logging - Logging all the requests that are made to the server.
+
+* Request Termination - Temporarily disable the request for some APIs or disable the service during downtime.
+
+
+Alright, these are a few of them. There might be even more to it as well.
+
+
+###Major Disadvantages of this approach:
+
+* When a new microservice comes up, all these functionalities need to be replicated.
+* Any change to one functionality should be repeated across all services. Eg: Moving the logging of requests from Loggly to StatsD.
+* Logically looking, all these functionalities are not specific to the underlying application. These can be decoupled from the application itself.
+
+
+###API Gateway:
+API Gateway doesn't need any introduction now. An API gateway can be considered as yet another microservice in your architecture that does all the aforementioned functionalities.
+
+
+![Architecture with API gateway](https://github.com/rahulramfort/blog/blob/master/devops/3_api_gateway/with_gateway_dark.png?raw=true)
+
+
+* It is the entry point for your microservices and acts as a gatekeeper doing all the basic functionalities before passing the request to the respective microservice. 
+* All the functionalities now reside at a centralised place, making it easy to maintain and analyse them. 
+* When a new microservice comes up, all it has to do is to process the requests and send the response back to the gateway. API gateway takes care of the rest.
+* With API gateway in place, functionalities like Request/Response Transformation, rolling out canary deployments become possible as well.
+
+I have jotted down some of the problems that an API gateway solves. Having said these, it's really up to the architecture to decide if an API gateway is a must to have or good to have. They are a must to have especially when there are a lot of microservices in the architecture. 
+
+Irrespective of whether there's an absolute need for an API gateway or not, just by looking closely at the design before the existence of API gateway, it's evident that it was violating [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle), [Don't repeat yourself](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) and [High Cohesion and low coupling](https://stackoverflow.com/questions/14000762/what-does-low-in-coupling-and-high-in-cohesion-mean).
