@@ -1,0 +1,63 @@
+Recently we faced an issue on our production where the CPU of our Postgres instance was hitting 99%. It was struggling to serve requests and as a result, our APIs were failing.
+
+To start with, the issue happened in one of our Golang based microservice. This is a very thin microservice that serves two lightweight APIs, so this service was never touched often and nobody cared.
+
+
+Looking at this image, it was obvious that the number of active database connections was constantly increasing and a quick look at the code told us, we did not have any config related to the connection pool.
+
+###When is a database connection created?
+When the application needs a database connection (consider to query some data), the application has to create a connection to the remote database and use it to query.
+
+Creating a new connection is costly because it involves the following: -
+the application has to read the database connection string, send the TCP/IP call to the DB instance, the database now has to authenticate/authorize the request and then let the application establish the new connection. The application can now make the actual query with the connection.
+
+Consider this happening for every time the application needs a DB connection, there's a waste of time and resources and this is why creating a new connection is termed "costly".
+
+And this is the problem that the connection pool solves.
+
+###What is a connection pool?
+
+As the name indicates, the connection pool creates a set of connections and caches them. These cached connections are then given to the application on demand and can be used to perform database operations. Once the application gets its job done with the connection, it returns the connection to the pool and the connections can be reused thereby eliminating the creation of new connections. Ultimately it improves the performance of your application.
+
+There are three connection pool variables that the golang SQL driver supports
+
+1. MaxOpenConns
+
+This specifies the maximum number of open connections that can be made to the database. In our case, since it was not defined, by default it allows an unlimited number of connections. This is the reason why the DB connections were ever-increasing.
+
+Consider that the `MaxOpenConns` variable is set at `5`, now if all the connections are being used and the application needs another connection, it has to wait till one of those 5 connections is returned to the connection pool by the application. 
+
+You have to estimate two things before setting this value, one - the number of connections that the DB can handle, two - the number of parallel workers you expect your application to work with.
+
+```
+We have set the `MaxOpenConns` at 30 for our instances.
+```
+
+2. MaxIdleConns
+
+This specifies the number of connections that can be idle in the connection pool (not used by the application). By default, the number is 2. 
+
+Consider that the `MaxOpenConns` variable is set at 30 and `MaxIdleConns` is set at 10. If the application is currently using only 12 of those connections, then the number of idle connections will be 18. Since the allowed `MaxIdleConns` is 10, the rest 8 connections will be returned to the database.
+
+If your service can get a sudden increase in traffic every now and then, you should consider having a higher value for `MaxIdleConns` so that when there's a spike in traffic, not a lot of new connections are created. So based on your load pattern, you can set the number of idle connections.
+
+```
+We have set the `MaxIdleConns` at 20 for our instances.
+```
+
+3. ConnMaxLifetime
+
+This specifies the validity of the connections in the pool. Once expired, the connections have to be reestablished. By default, the validity is forever. Unless you have your database behind a load balancer and swap databases, this value can be set quite high.
+
+```
+We have set the `ConnMaxLifetime` at 30 minutes for our instances.
+```
+
+
+
+
+
+
+
+
+
